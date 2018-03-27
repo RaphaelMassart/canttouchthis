@@ -6,6 +6,8 @@ public class PlayerSkeleton {
 		
 		return 0;
 	}
+
+	public int aggregateHeight
 	
 	public static void main(String[] args) {
 		State s = new State();
