@@ -1,9 +1,13 @@
+// TODO Advanced heuristics: holes
+// TODO 1 Forward looking
+// TODO Genetic algo training
+
 public class PlayerSkeleton {
 
-	private double numHolesWeight = 1.6;
-	private double bumpinessWeight = 1.1;
-	private double aggregateHeightWeight = 0.8;
-	private double rowsClearedWeight = 0.8;
+	private double numHolesWeight = 14; //1.6;//7.6;//0.35663;
+	private double bumpinessWeight = 3.1;//3.1;//0.184483;
+	private double aggregateHeightWeight = 1.8;//0.8;//0.510066;
+	private double rowsClearedWeight = 1.8;//0.8;//-0.760666;
 
 	public int countHoles(InnerState s) {
 		int hole_ct = 0;
@@ -74,18 +78,19 @@ public class PlayerSkeleton {
 		int moveIdx = 0;
 
 		// iterate through legal moves
-		// System.out.println("========Iterating through Moves=========");
 		for (int i = 0; i < legalMoves.length; i++) {
-			InnerState next = new InnerState(s.nextPiece, s.getField(), s.getTop());
+			InnerState next = new InnerState(s.nextPiece, s.getTurnNumber(), s.getField(), s.getTop());
 
 			// get move
 			int[] move = legalMoves[i];
 
 			// make move
-			int rowsCleared = next.innerMakeMove(move);
+			//int rowsCleared =
+			next.innerMakeMove(move); //don't return
+			double currCost = oneLookAhead(next);
 
 			// calculate cost of move
-			double currCost = rowsCleared == -1 ? Double.MAX_VALUE: calculateCost(next, rowsCleared);
+//			double currCost = rowsCleared == -1 ? Double.MAX_VALUE: calculateCost(next, rowsCleared);
 
 			// System.out.println(currCost +  " " + minCost);
 			if (currCost <= minCost) {
@@ -97,6 +102,26 @@ public class PlayerSkeleton {
 		return moveIdx;
 	}
 
+	public double oneLookAhead(InnerState s) {
+		int sum = 0;
+		for (int i = 0; i < InnerState.N_PIECES; i++) {
+			int[][] legalMoves = InnerState.legalMoves[i];
+			double minCost = Double.MAX_VALUE;
+			for (int j = 0; j < legalMoves.length; j++) {
+				InnerState next = new InnerState(i, s.getTurnNumber(), s.getField(), s.getTop());
+				int[] move = legalMoves[j];
+				int rowsCleared = next.innerMakeMove(move);
+				double currCost = rowsCleared == -1 ? Double.MAX_VALUE: calculateCost(next, rowsCleared);
+
+				if (currCost < minCost) {
+					minCost = currCost;
+				}
+			}
+			sum += minCost;
+		}
+		return sum;
+	}
+
 	public static void main(String[] args) {
 		State s = new State();
 		new TFrame(s);
@@ -105,11 +130,11 @@ public class PlayerSkeleton {
 			s.makeMove(p.pickMove(s,s.legalMoves()));
 			s.draw();
 			s.drawNext(0,0);
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+//			try {
+//				Thread.sleep(1);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
 		}
 		System.out.println("You have completed "+s.getRowsCleared()+" rows.");
 	}
@@ -131,7 +156,7 @@ class InnerState extends State {
 
 
 	// test if it's better to instantiate a new InnerState with field, or use setField to reuse the field again
-	public InnerState(int nextPiece, int[][] field, int[] top) {
+	public InnerState(int nextPiece, int turnNumber, int[][] field, int[] top) {
 		super();
 		// static members
 		pHeight = getpHeight();
@@ -139,6 +164,7 @@ class InnerState extends State {
 		pTop = getpTop();
 
 		this.nextPiece = nextPiece;
+		this.turn = turnNumber;
 
 		int fieldRowLen = field.length;
 		int fieldColLen = field[0].length;
@@ -157,7 +183,6 @@ class InnerState extends State {
 			this.top[i] = top[i];
 		}
 
-		this.turn = super.getTurnNumber();
 		this.cleared = super.getRowsCleared();
 	}
 
