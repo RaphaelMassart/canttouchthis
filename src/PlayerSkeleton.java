@@ -138,9 +138,8 @@ public class PlayerSkeleton {
 	public static void main(String[] args) {
 		Logger logger = Logger.getLogger("MyLog");
 		FileHandler fh;
-
+		String startTimeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( new Date() );
 		try {
-
 			// This block configure the logger with handler and formatter
 			fh = new FileHandler("%h/tetris_log/tetris.log", true);
 			logger.addHandler(fh);
@@ -148,8 +147,7 @@ public class PlayerSkeleton {
 			fh.setFormatter(formatter);
 
 			// the following statement is used to log any messages
-			String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format( new Date() );
-			logger.info("New game started at: " + timeStamp);
+			logger.info("New game started at: " + startTimeStamp);
 
 		} catch (SecurityException e) {
 			e.printStackTrace();
@@ -160,12 +158,12 @@ public class PlayerSkeleton {
 		logger.info("Rows log:");
 		int rowsCounter = 0;
 		State s = new State();
-		new TFrame(s);
+//		new TFrame(s);
 		PlayerSkeleton p = new PlayerSkeleton();
 		while(!s.hasLost()) {
 			s.makeMove(p.pickMove(s,s.legalMoves()));
-			s.draw();
-			s.drawNext(0,0);
+//			s.draw();
+//			s.drawNext(0,0);
 //			try {
 //				Thread.sleep(1000);
 //			} catch (InterruptedException e) {
@@ -177,8 +175,8 @@ public class PlayerSkeleton {
 				rowsCounter = rowsCleared;
 			}
 		}
-		String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format( new Date() );
-		logger.info("Game ended at: " + timeStamp);
+		String endTimeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( new Date() );
+		logger.info("Game ended at: " + endTimeStamp);
 		logger.info ("Rows cleared: "+s.getRowsCleared());
 		int[][] field = s.getField();
 		logger.info ("Grid:");
@@ -198,7 +196,7 @@ public class PlayerSkeleton {
 			BufferedWriter bw = new BufferedWriter(fw);
 			PrintWriter out = new PrintWriter(bw))
 		{
-			out.println(timeStamp + "  " + Integer.toString(s.getRowsCleared()));
+			out.println(startTimeStamp + " " + endTimeStamp + "  " + Integer.toString(s.getRowsCleared()));
 
 		} catch (IOException e) {
 			//exception handling left as an exercise for the reader
