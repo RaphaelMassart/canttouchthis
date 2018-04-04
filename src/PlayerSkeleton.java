@@ -191,11 +191,10 @@ public class PlayerSkeleton {
 		logger.info("===================================");
 
 		String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator + "rowsCleared.log";
-		try(
+		try {
 			FileWriter fw = new FileWriter(filePath, true);
 			BufferedWriter bw = new BufferedWriter(fw);
-			PrintWriter out = new PrintWriter(bw))
-		{
+			PrintWriter out = new PrintWriter(bw);
 			out.println(startTimeStamp + " " + endTimeStamp + "  " + Integer.toString(s.getRowsCleared()));
 
 		} catch (IOException e) {
