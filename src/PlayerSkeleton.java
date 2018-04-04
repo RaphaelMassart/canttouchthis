@@ -2,7 +2,11 @@
 // TODO 1 Forward looking
 // TODO Genetic algo training
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.FileHandler;
@@ -187,6 +191,18 @@ public class PlayerSkeleton {
 			logger.info(sb.toString());
 		}
 		logger.info("===================================");
+
+		String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator + "rowsCleared.log";
+		try(
+			FileWriter fw = new FileWriter(filePath, true);
+			BufferedWriter bw = new BufferedWriter(fw);
+			PrintWriter out = new PrintWriter(bw))
+		{
+			out.println(timeStamp + "  " + Integer.toString(s.getRowsCleared()));
+
+		} catch (IOException e) {
+			//exception handling left as an exercise for the reader
+		}
 	}
 
 
