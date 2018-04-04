@@ -5,7 +5,7 @@
 public class PlayerSkeleton {
 
 	private double numHolesWeight = 14; //1.6;//7.6;//0.35663;
-	private double bumpinessWeight = 3.1;//3.1;//0.184483;
+	private double bumpinessWeight = 6.1;//3.1;//0.184483;
 	private double aggregateHeightWeight = 1.8;//0.8;//0.510066;
 	private double rowsClearedWeight = 1.8;//0.8;//-0.760666;
 
@@ -111,9 +111,9 @@ public class PlayerSkeleton {
 				InnerState next = new InnerState(i, s.getTurnNumber(), s.getField(), s.getTop());
 				int[] move = legalMoves[j];
 				int rowsCleared = next.innerMakeMove(move);
-				double currCost = rowsCleared == -1 ? Double.MAX_VALUE: calculateCost(next, rowsCleared);
+				double currCost = rowsCleared == -1 ? Math.pow(10,10): calculateCost(next, rowsCleared);
 
-				if (currCost < minCost) {
+				if (currCost <= minCost) {
 					minCost = currCost;
 				}
 			}
@@ -131,7 +131,7 @@ public class PlayerSkeleton {
 			s.draw();
 			s.drawNext(0,0);
 //			try {
-//				Thread.sleep(1);
+//				Thread.sleep(1000);
 //			} catch (InterruptedException e) {
 //				e.printStackTrace();
 //			}
