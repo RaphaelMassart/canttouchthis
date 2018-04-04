@@ -138,7 +138,7 @@ public class PlayerSkeleton {
 		try {
 
 			// This block configure the logger with handler and formatter
-			fh = new FileHandler("%h/tetris.log", true);
+			fh = new FileHandler("%h/tetris_log/tetris.log", true);
 			logger.addHandler(fh);
 			MyFormatter formatter = new MyFormatter();
 			fh.setFormatter(formatter);
