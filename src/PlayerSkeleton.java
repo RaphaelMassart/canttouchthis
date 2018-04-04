@@ -2,9 +2,18 @@
 // TODO 1 Forward looking
 // TODO Genetic algo training
 
-public class PlayerSkeleton {
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
-	private double numHolesWeight = 14; //1.6;//7.6;//0.35663;
+public class PlayerSkeleton {
+	//private static final Logger LOGGER = Logger.getLogger( PlayerSkeleton.class.getName() );
+	private double numHolesWeight = 1400000; //1.6;//7.6;//0.35663;
 	private double bumpinessWeight = 6.1;//3.1;//0.184483;
 	private double aggregateHeightWeight = 1.8;//0.8;//0.510066;
 	private double rowsClearedWeight = 1.8;//0.8;//-0.760666;
@@ -123,6 +132,27 @@ public class PlayerSkeleton {
 	}
 
 	public static void main(String[] args) {
+		Logger logger = Logger.getLogger("MyLog");
+		FileHandler fh;
+
+		try {
+
+			// This block configure the logger with handler and formatter
+			fh = new FileHandler("%h/tetris.log", true);
+			logger.addHandler(fh);
+			MyFormatter formatter = new MyFormatter();
+			fh.setFormatter(formatter);
+
+			// the following statement is used to log any messages
+			String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format( new Date() );
+			logger.info("New game started at: " + timeStamp);
+
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		State s = new State();
 		new TFrame(s);
 		PlayerSkeleton p = new PlayerSkeleton();
@@ -136,7 +166,20 @@ public class PlayerSkeleton {
 //				e.printStackTrace();
 //			}
 		}
-		System.out.println("You have completed "+s.getRowsCleared()+" rows.");
+		String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format( new Date() );
+		logger.info("Game ended at: " + timeStamp);
+		logger.info ("Rows: "+s.getRowsCleared());
+		int[][] field = s.getField();
+		logger.info ("Grid:");
+		for (int i = field.length - 1; i >= 0; i--) {
+			StringBuilder sb = new StringBuilder(String.format("row %2d ",i));
+			for(int j = 0; j< field[i].length; j++) {
+				String turn = String.format(" %9d", field[i][j]);
+				sb.append(turn);
+			}
+			logger.info(sb.toString());
+		}
+		logger.info("===================================");
 	}
 
 
@@ -270,5 +313,17 @@ class InnerState extends State {
 	@Override
 	public int[][] getField() {
 		return this.field;
+	}
+}
+
+class MyFormatter extends SimpleFormatter {
+
+	@Override
+	public String format(LogRecord record){
+		if(record.getLevel() == Level.INFO){
+			return record.getMessage() + "\r\n";
+		}else{
+			return super.format(record);
+		}
 	}
 }
