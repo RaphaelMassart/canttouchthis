@@ -153,6 +153,8 @@ public class PlayerSkeleton {
 			e.printStackTrace();
 		}
 
+		logger.info("Rows log:");
+		int rowsCounter = 0;
 		State s = new State();
 		new TFrame(s);
 		PlayerSkeleton p = new PlayerSkeleton();
@@ -165,10 +167,15 @@ public class PlayerSkeleton {
 //			} catch (InterruptedException e) {
 //				e.printStackTrace();
 //			}
+			int rowsCleared = s.getRowsCleared();
+			if ((rowsCleared - rowsCounter) >= 100) {
+				logger.info(Integer.toString(rowsCleared));
+				rowsCounter = rowsCleared;
+			}
 		}
 		String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format( new Date() );
 		logger.info("Game ended at: " + timeStamp);
-		logger.info ("Rows: "+s.getRowsCleared());
+		logger.info ("Rows cleared: "+s.getRowsCleared());
 		int[][] field = s.getField();
 		logger.info ("Grid:");
 		for (int i = field.length - 1; i >= 0; i--) {
