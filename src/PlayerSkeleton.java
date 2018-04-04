@@ -190,10 +190,10 @@ public class PlayerSkeleton {
 		}
 		logger.info("===================================");
 
-		String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator + "rowsCleared.log";
+		String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator + "rowsCleared.csv";
 		try {
 			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, true)));
-			out.println(startTimeStamp + " " + endTimeStamp + "  " + Integer.toString(s.getRowsCleared()));
+			out.println(startTimeStamp + "," + endTimeStamp + "," + Integer.toString(s.getRowsCleared()));
 			out.close();
 		} catch (IOException e) {
 			//exception handling left as an exercise for the reader
