@@ -13,7 +13,7 @@ import java.util.logging.SimpleFormatter;
 
 public class PlayerSkeleton {
 	//private static final Logger LOGGER = Logger.getLogger( PlayerSkeleton.class.getName() );
-	private double numHolesWeight = 1400000; //1.6;//7.6;//0.35663;
+	private double numHolesWeight = 14; //1.6;//7.6;//0.35663;
 	private double bumpinessWeight = 6.1;//3.1;//0.184483;
 	private double aggregateHeightWeight = 1.8;//0.8;//0.510066;
 	private double rowsClearedWeight = 1.8;//0.8;//-0.760666;
