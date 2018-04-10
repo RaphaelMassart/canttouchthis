@@ -28,16 +28,16 @@ public class PlayerSkeleton {
 	private boolean shouldLogFinalGrid = false;
 
 	public PlayerSkeleton() {
-		try {
-			FileHandler fh = new FileHandler("%h/tetris_log/tetris.log", true);
-			LOGGER.addHandler(fh);
-			MyFormatter formatter = new MyFormatter();
-			fh.setFormatter(formatter);
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			FileHandler fh = new FileHandler("%h/tetris_log/tetris.log", true);
+//			LOGGER.addHandler(fh);
+//			MyFormatter formatter = new MyFormatter();
+//			fh.setFormatter(formatter);
+//		} catch (SecurityException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	public PlayerSkeleton(double weights[], boolean oneLookAhead, boolean logHundredRows, boolean logGrid) {

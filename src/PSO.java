@@ -28,7 +28,7 @@ public class PSO {
         System.out.println("Begin: PSO\n");
 
         // Create a swarm (using 'MyParticle' as sample particle and 'MyFitnessFunction' as fitness function)
-        Swarm swarm = new Swarm(numberOfParticles, new MyParticle(), new MyFitnessFunction());
+        Swarm swarm = new Swarm(numberOfParticles, new MyParticle(), new MyFitnessFunction(false));
 
         // Use neighborhood
         Neighborhood neigh = new Neighborhood1D(numberOfParticles / 5, true);

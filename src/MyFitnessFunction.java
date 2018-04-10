@@ -2,7 +2,9 @@ import net.sourceforge.jswarm_pso.FitnessFunction;
 
 public class MyFitnessFunction extends FitnessFunction {
 
-
+    MyFitnessFunction(boolean maximize) {
+        super(maximize);
+    }
     /**
      * Evaluates a particles at a given position
      * @param position : Particle's position
