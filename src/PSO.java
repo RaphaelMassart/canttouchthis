@@ -22,16 +22,16 @@ public class PSO {
             }
         }
 
-        int numberOfParticles = firstArg == 0 ? Swarm.DEFAULT_NUMBER_OF_PARTICLES : firstArg;
+        Swarm.DEFAULT_NUMBER_OF_PARTICLES  = firstArg == 0 ? Swarm.DEFAULT_NUMBER_OF_PARTICLES : firstArg;
         int numberOfIterations = secondArg == 0 ? 25 : secondArg;
 
         System.out.println("Begin: PSO\n");
 
         // Create a swarm (using 'MyParticle' as sample particle and 'MyFitnessFunction' as fitness function)
-        Swarm swarm = new Swarm(numberOfParticles, new MyParticle(), new MyFitnessFunction());
+        Swarm swarm = new Swarm(Swarm.DEFAULT_NUMBER_OF_PARTICLES , new MyParticle(), new MyFitnessFunction());
 
         // Use neighborhood
-        Neighborhood neigh = new Neighborhood1D(numberOfParticles / 5, true);
+        Neighborhood neigh = new Neighborhood1D(Swarm.DEFAULT_NUMBER_OF_PARTICLES  / 5, true);
         swarm.setNeighborhood(neigh);
         swarm.setNeighborhoodIncrement(0.9);
 
