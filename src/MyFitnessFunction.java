@@ -70,7 +70,7 @@ public class MyFitnessFunction extends FitnessFunction {
         double finalAverageHoles = (double)totalHoles / turnsPlayed;
         double finalAverageHeight = (double)totalHeight / turnsPlayed;
         
-        double fitnessFunc = rowsCleared + finalAverageHoles + finalAverageHeight;
+        double fitnessFunc = rowsCleared - finalAverageHoles - finalAverageHeight;
         String end = p.logGameOver(rowsCleared, s.getField());
         p.writeClearedRows(rowsCleared, start, end);
         return fitnessFunc;
