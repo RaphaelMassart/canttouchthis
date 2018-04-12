@@ -2,11 +2,6 @@ import net.sourceforge.jswarm_pso.FitnessFunction;
 
 public class MyFitnessFunction extends FitnessFunction {
 
-    /**
-     * Evaluates a particles at a given position
-     * @param position : Particle's position
-     * @return Fitness function for a particle
-     */
 	public static int countHoles(State s) {
 		int hole_ct = 0;
 		int rows_num = s.getField().length;
@@ -44,7 +39,11 @@ public class MyFitnessFunction extends FitnessFunction {
 		return sum;
 	}
 
-	
+    /**
+     * Evaluates a particles at a given position
+     * @param position : Particle's position
+     * @return Fitness function for a particle
+     */
     public double evaluate(double position[]) {
         int rowsCounter = 0;
         State s = new State();
@@ -52,26 +51,26 @@ public class MyFitnessFunction extends FitnessFunction {
         String start = p.logGameStart();
         
         int totalHoles = 0;
-        int maxHeight = 0;
+        int totalHeight = 0;
         
         while(!s.hasLost()) {
             s.makeMove(p.pickMove(s,s.legalMoves()));
             int rowsCleared = s.getRowsCleared();
             totalHoles += countHoles(s);
             int currHeight = aggregateHeight(s);
-            if (currHeight > maxHeight) {
-            	maxHeight = currHeight;
-            }
+            totalHeight += currHeight;
+
             if ((rowsCleared - rowsCounter) >= 100 && p.getShouldLogEveryHundredRows()) {
                 p.logEveryHundredRows(rowsCleared);
                 rowsCounter = rowsCleared;
             }
         }
         int rowsCleared = s.getRowsCleared();
-        int finalTotalHoles = totalHoles;
-        int finalMaxHeight = maxHeight;
+        int turnsPlayed = s.getTurnNumber();
+        double finalAverageHoles = (double)totalHoles / turnsPlayed;
+        double finalAverageHeight = (double)totalHeight / turnsPlayed;
         
-        int fitnessFunc = rowsCleared + finalTotalHoles + finalMaxHeight;
+        double fitnessFunc = rowsCleared + finalAverageHoles + finalAverageHeight;
         String end = p.logGameOver(rowsCleared, s.getField());
         p.writeClearedRows(rowsCleared, start, end);
         return fitnessFunc;
