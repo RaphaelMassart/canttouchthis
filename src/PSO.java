@@ -1,9 +1,14 @@
-import net.sourceforge.jswarm_pso.Neighborhood;
-import net.sourceforge.jswarm_pso.Neighborhood1D;
 import net.sourceforge.jswarm_pso.Swarm;
 import net.sourceforge.jswarm_pso.example_2.SwarmShow2D;
 
 public class PSO {
+
+    private static final double INERTIA_WEIGHT = 0.72;
+    private static final double CONGITIVE_TERM_C1 = 1.42;
+    private static final double SOCIAL_TERM_C2 = 1.42;
+    private static final double MAX_POSITION = 1;
+    private static final double MIN_POSITION = -1;
+    private static final double MAXMIN_VELOCITY = 0.5;
 
     //-------------------------------------------------------------------------
     // Main
@@ -30,16 +35,19 @@ public class PSO {
         // Create a swarm (using 'MyParticle' as sample particle and 'MyFitnessFunction' as fitness function)
         Swarm swarm = new Swarm(Swarm.DEFAULT_NUMBER_OF_PARTICLES , new MyParticle(), new MyFitnessFunction());
 
+
         // Use neighborhood
-        Neighborhood neigh = new Neighborhood1D(Swarm.DEFAULT_NUMBER_OF_PARTICLES  / 5, true);
-        swarm.setNeighborhood(neigh);
-        swarm.setNeighborhoodIncrement(0.9);
+//        Neighborhood neigh = new Neighborhood1D(Swarm.DEFAULT_NUMBER_OF_PARTICLES  / 5, true);
+//        swarm.setNeighborhood(neigh);
+//        swarm.setNeighborhoodIncrement(0.9);
 
         // Set position (and velocity) constraints. I.e.: where to look for solutions
-        swarm.setInertia(0.95);
-        swarm.setMaxPosition(1);
-        swarm.setMinPosition(0);
-        swarm.setMaxMinVelocity(0.1);
+        swarm.setInertia(PSO.INERTIA_WEIGHT);
+        swarm.setMaxPosition(PSO.MAX_POSITION);
+        swarm.setMinPosition(PSO.MIN_POSITION);
+        swarm.setMaxMinVelocity(PSO.MAXMIN_VELOCITY);
+        swarm.setParticleIncrement(PSO.CONGITIVE_TERM_C1);
+        swarm.setGlobalIncrement(PSO.SOCIAL_TERM_C2);
 
         boolean showGraphics = false;
 
