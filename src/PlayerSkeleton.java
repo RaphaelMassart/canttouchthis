@@ -55,7 +55,7 @@ public class PlayerSkeleton {
 		return this.shouldLogEveryHundredRows;
 	}
 
-	public int countHoles(InnerState s) {
+	public static int countHoles(InnerState s) {
 		int hole_ct = 0;
 		int rows_num = s.getField().length;
 		int cols_num = s.getField()[0].length;
@@ -92,7 +92,7 @@ public class PlayerSkeleton {
 	}
 
 
-	public int aggregateHeight(InnerState s) {
+	public static int aggregateHeight(InnerState s) {
 		int[] tops = s.getTop();
 		int sum = 0;
 		for (int top: tops) {
