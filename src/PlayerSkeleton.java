@@ -216,18 +216,18 @@ public class PlayerSkeleton {
 	public static void main(String[] args) {
 		int rowsCounter = 0;
 		State s = new State();
-		new TFrame(s);
+//		new TFrame(s);
 		PlayerSkeleton p = new PlayerSkeleton();
 		String start = p.logGameStart();
 		while(!s.hasLost()) {
 			s.makeMove(p.pickMove(s,s.legalMoves()));
-			s.draw();
-			s.drawNext(0,0);
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+//			s.draw();
+//			s.drawNext(0,0);
+//			try {
+//				Thread.sleep(1000);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
 			int rowsCleared = s.getRowsCleared();
 			if ((rowsCleared - rowsCounter) >= 100 && p.shouldLogEveryHundredRows) {
 				p.logEveryHundredRows(rowsCleared);
