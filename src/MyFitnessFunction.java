@@ -81,7 +81,7 @@ public class MyFitnessFunction extends FitnessFunction {
         double finalAverageMaxHeight = (double)totalMaxHeight / turnsPlayed;
 
 		// Change this fitness function according to your task!!
-        double fitnessFunc = rowsCleared - finalAverageHoles - finalAverageHeight;
+        double fitnessFunc = rowsCleared - finalAverageHoles - finalAverageMaxHeight;
 
         String end = p.logGameOver(rowsCleared, s.getField());
 
@@ -93,7 +93,7 @@ public class MyFitnessFunction extends FitnessFunction {
 
 		// Change the stats according to your task!!
         String stats = finalAverageHoles
-        		+ "," + finalAverageHeight
+        		+ "," + finalAverageMaxHeight
         		+ ",weights," + sb.toString()
 				+ "rows," + rowsCleared;
 
