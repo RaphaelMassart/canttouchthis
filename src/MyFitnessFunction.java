@@ -58,13 +58,16 @@ public class MyFitnessFunction extends FitnessFunction {
         String start = p.logGameStart();
         
         int totalHoles = 0;
+        int maxHoles = 0;
         int totalAggregateHeight = 0;
         int totalMaxHeight = 0;
         
         while(!s.hasLost()) {
             s.makeMove(p.pickMove(s,s.legalMoves()));
             int rowsCleared = s.getRowsCleared();
-            totalHoles += countHoles(s);
+            int holes = countHoles(s);
+            totalHoles += holes;
+            maxHoles = holes > maxHoles ? holes : maxHoles;
             totalAggregateHeight += aggregateHeight(s);
             totalMaxHeight += maxHeight(s);
 
@@ -81,7 +84,11 @@ public class MyFitnessFunction extends FitnessFunction {
         double finalAverageMaxHeight = (double)totalMaxHeight / turnsPlayed;
 
 		// Change this fitness function according to your task!!
-        double fitnessFunc = rowsCleared - finalAverageHoles - finalAverageHeight;
+
+		double holeFitness = ((double)maxHoles - finalAverageHoles) / (double)maxHoles;
+		double maxHeightFitness = (20.0 - finalAverageMaxHeight) / 20.0;
+
+        double fitnessFunc = (double)rowsCleared + 500 * holeFitness + 500 * maxHeightFitness;
 
         String end = p.logGameOver(rowsCleared, s.getField());
 
@@ -93,7 +100,9 @@ public class MyFitnessFunction extends FitnessFunction {
 
 		// Change the stats according to your task!!
         String stats = finalAverageHoles
-        		+ "," + finalAverageHeight
+        		+ "," + finalAverageMaxHeight
+				+ "," + holeFitness
+				+ "," + maxHeightFitness
         		+ ",weights," + sb.toString()
 				+ "rows," + rowsCleared;
 
