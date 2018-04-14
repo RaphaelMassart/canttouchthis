@@ -2,31 +2,26 @@ import net.sourceforge.jswarm_pso.FitnessFunction;
 
 public class MyFitnessFunction extends FitnessFunction {
 
-	public static int countHoles(State s) {
-		int hole_ct = 0;
-		int rows_num = s.getField().length;
-		int cols_num = s.getField()[0].length;
+	public int countHoles(State s) {
+		int[][] field = s.getField();
+		int rowsNum = field.length;
+		int colsNum = field[0].length;
+		int totalHoleCount = 0;
 
-		for (int i = 0; i < rows_num; i++) { // iterate through rows
-			for (int j = 0; j < cols_num; j++) { // iterate through columns
+		for (int j = 0; j < colsNum; j++) {
+			int holeCounter = 0;
+			for (int i = 0; i < rowsNum -1; i++) {
+				if(field[i][j] == 0) {
+					holeCounter++;
+				}
 
-				if(!(i == rows_num - 1)) {
-					if(s.getField()[i][j] == 0) {
-
-						int block_idx = 1;
-
-						// if there is some blockade above the current block, increment hole count
-						for (block_idx = 1; block_idx < rows_num - i; block_idx++) {
-							if (s.getField()[i+block_idx][j] != 0) {
-								hole_ct++;
-								break;
-							}
-						}
-					}
+				if (field[i][j] !=0 && holeCounter != 0) {
+					totalHoleCount += holeCounter;
+					holeCounter = 0;
 				}
 			}
 		}
-		return hole_ct;
+		return totalHoleCount;
 	}
 	
 	public static int aggregateHeight(State s) {
@@ -72,7 +67,11 @@ public class MyFitnessFunction extends FitnessFunction {
         
         double fitnessFunc = rowsCleared - finalAverageHoles - finalAverageHeight;
         String end = p.logGameOver(rowsCleared, s.getField());
+
         p.writeClearedRows(rowsCleared, start, end);
+		// p.writeFitnessFunction(rows);
         return fitnessFunc;
     }
+
+
 }

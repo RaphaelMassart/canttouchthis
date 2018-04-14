@@ -55,31 +55,26 @@ public class PlayerSkeleton {
 		return this.shouldLogEveryHundredRows;
 	}
 
-	public static int countHoles(InnerState s) {
-		int hole_ct = 0;
-		int rows_num = s.getField().length;
-		int cols_num = s.getField()[0].length;
+	public int countHoles(InnerState s) {
+		int[][] field = s.getField();
+		int rowsNum = field.length;
+		int colsNum = field[0].length;
+		int totalHoleCount = 0;
 
-		for (int i = 0; i < rows_num; i++) { // iterate through rows
-			for (int j = 0; j < cols_num; j++) { // iterate through columns
+		for (int j = 0; j < colsNum; j++) {
+			int holeCounter = 0;
+			for (int i = 0; i < rowsNum -1; i++) {
+				if(field[i][j] == 0) {
+					holeCounter++;
+				}
 
-				if(!(i == rows_num - 1)) {
-					if(s.getField()[i][j] == 0) {
-
-						int block_idx = 1;
-
-						// if there is some blockade above the current block, increment hole count
-						for (block_idx = 1; block_idx < rows_num - i; block_idx++) {
-							if (s.getField()[i+block_idx][j] != 0) {
-								hole_ct++;
-								break;
-							}
-						}
-					}
+				if (field[i][j] !=0 && holeCounter != 0) {
+					totalHoleCount += holeCounter;
+					holeCounter = 0;
 				}
 			}
 		}
-		return hole_ct;
+		return totalHoleCount;
 	}
 
 	public int calculateBumpiness(InnerState s) {
@@ -124,7 +119,7 @@ public class PlayerSkeleton {
 		// iterate through legal moves
 		for (int i = 0; i < legalMoves.length; i++) {
 			InnerState next = new InnerState(s.nextPiece, s.getTurnNumber(), s.getField(), s.getTop());
-
+			System.out.println(countHoles(next));
 			// get move
 			int[] move = legalMoves[i];
 			double currCost;
@@ -137,7 +132,6 @@ public class PlayerSkeleton {
 				currCost = rowsCleared == -1 ? Double.MAX_VALUE : calculateCost(next, rowsCleared);
 			}
 
-			// System.out.println(currCost +  " " + minCost);
 			if (currCost <= minCost) {
 				minCost = currCost;
 				moveIdx = i;
@@ -209,21 +203,35 @@ public class PlayerSkeleton {
 		}
 	}
 
+	public void writeFitnessFunction(String start, String end, int rowsCleared, double avgNumHoles, double avgHeight, double fitnessFunc) {
+		String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator + "rowsCleared.csv";
+		try {
+			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, true)));
+			out.println(start + "," + end + "," + Integer.toString(rowsCleared));
+			out.close();
+		} catch (IOException e) {
+			//exception handling left as an exercise for the reader
+			LOGGER.severe(e.getMessage());
+		}
+	}
+
+
+
 	public static void main(String[] args) {
 		int rowsCounter = 0;
 		State s = new State();
-//		new TFrame(s);
+		new TFrame(s);
 		PlayerSkeleton p = new PlayerSkeleton();
 		String start = p.logGameStart();
 		while(!s.hasLost()) {
 			s.makeMove(p.pickMove(s,s.legalMoves()));
-//			s.draw();
-//			s.drawNext(0,0);
-//			try {
-//				Thread.sleep(1000);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
+			s.draw();
+			s.drawNext(0,0);
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			int rowsCleared = s.getRowsCleared();
 			if ((rowsCleared - rowsCounter) >= 100 && p.shouldLogEveryHundredRows) {
 				p.logEveryHundredRows(rowsCleared);
