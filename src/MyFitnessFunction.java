@@ -81,7 +81,7 @@ public class MyFitnessFunction extends FitnessFunction {
         double finalAverageMaxHeight = (double)totalMaxHeight / turnsPlayed;
 
 		// Change this fitness function according to your task!!
-        double fitnessFunc = rowsCleared - finalAverageHoles - finalAverageHeight;
+        double fitnessFunc = rowsCleared - finalAverageHoles - (200.0 - finalAverageHeight);
 
         String end = p.logGameOver(rowsCleared, s.getField());
 
