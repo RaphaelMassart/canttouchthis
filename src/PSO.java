@@ -1,8 +1,12 @@
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import net.sourceforge.jswarm_pso.Swarm;
 import net.sourceforge.jswarm_pso.example_2.SwarmShow2D;
 
 public class PSO {
 
+    public static String startTime;
     private static final double INERTIA_WEIGHT = 0.72;
     private static final double CONGITIVE_TERM_C1 = 1.42;
     private static final double SOCIAL_TERM_C2 = 1.42;
@@ -31,6 +35,7 @@ public class PSO {
         int numberOfIterations = secondArg == 0 ? 25 : secondArg;
 
         System.out.println("Begin: PSO\n");
+        PSO.startTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( new Date() );
 
         // Create a swarm (using 'MyParticle' as sample particle and 'MyFitnessFunction' as fitness function)
         Swarm swarm = new Swarm(Swarm.DEFAULT_NUMBER_OF_PARTICLES , new MyParticle(), new MyFitnessFunction());

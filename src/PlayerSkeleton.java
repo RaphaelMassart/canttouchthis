@@ -16,8 +16,6 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 public class PlayerSkeleton {
-
-
 	private static final Logger LOGGER = Logger.getLogger( PlayerSkeleton.class.getName() );
 	private double numHolesWeight = 14; //1.6;//7.6;//0.35663;
 	private double bumpinessWeight = 6.1;//3.1;//0.184483;
@@ -119,7 +117,6 @@ public class PlayerSkeleton {
 		// iterate through legal moves
 		for (int i = 0; i < legalMoves.length; i++) {
 			InnerState next = new InnerState(s.nextPiece, s.getTurnNumber(), s.getField(), s.getTop());
-			System.out.println(countHoles(next));
 			// get move
 			int[] move = legalMoves[i];
 			double currCost;
@@ -192,19 +189,7 @@ public class PlayerSkeleton {
 	}
 
 	public void writeClearedRows(int rowsCleared, String start, String end) {
-		String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator + "rowsCleared.csv";
-		try {
-			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, true)));
-			out.println(start + "," + end + "," + Integer.toString(rowsCleared));
-			out.close();
-		} catch (IOException e) {
-			//exception handling left as an exercise for the reader
-			LOGGER.severe(e.getMessage());
-		}
-	}
-
-	public void writeFitnessFunction(String start, String end, int rowsCleared, double avgNumHoles, double avgHeight, double fitnessFunc) {
-		String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator + "rowsCleared.csv";
+		String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator + "rowsCleared_" + start + ".csv";
 		try {
 			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, true)));
 			out.println(start + "," + end + "," + Integer.toString(rowsCleared));
@@ -216,6 +201,17 @@ public class PlayerSkeleton {
 	}
 
 
+	public void writeToLog(String trainingStart, String gameStart, String gameEnd, String text) {
+		String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator + "rowsCleared_" + trainingStart + ".csv";
+		try {
+			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, true)));
+			out.println(gameStart + "," + gameEnd + "," + text);
+			out.close();
+		} catch (IOException e) {
+			//exception handling left as an exercise for the reader
+			LOGGER.severe(e.getMessage());
+		}
+	}
 
 	public static void main(String[] args) {
 		int rowsCounter = 0;

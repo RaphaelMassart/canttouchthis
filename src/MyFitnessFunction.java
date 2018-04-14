@@ -68,8 +68,10 @@ public class MyFitnessFunction extends FitnessFunction {
         double fitnessFunc = rowsCleared - finalAverageHoles - finalAverageHeight;
         String end = p.logGameOver(rowsCleared, s.getField());
 
-        p.writeClearedRows(rowsCleared, start, end);
-		// p.writeFitnessFunction(rows);
+        String stats = (int)finalAverageHoles
+        		+ "," + (int)finalAverageHeight
+        		+ "," + rowsCleared;
+        p.writeToLog(PSO.startTime, start, end, stats);
         return fitnessFunc;
     }
 
