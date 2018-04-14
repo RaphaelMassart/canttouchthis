@@ -198,7 +198,7 @@ public class PlayerSkeleton {
 	}
 
 	public void writeClearedRows(int rowsCleared, String start, String end) {
-		String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator + "rowsCleared.csv";
+		String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator + "rowsCleared.csv_" + start;
 		try {
 			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, true)));
 			out.println(start + "," + end + "," + Integer.toString(rowsCleared));
