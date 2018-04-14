@@ -1,3 +1,9 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
 import net.sourceforge.jswarm_pso.FitnessFunction;
 
 public class MyFitnessFunction extends FitnessFunction {
@@ -72,7 +78,11 @@ public class MyFitnessFunction extends FitnessFunction {
         
         double fitnessFunc = rowsCleared - finalAverageHoles - finalAverageHeight;
         String end = p.logGameOver(rowsCleared, s.getField());
-        p.writeClearedRows(rowsCleared, start, end);
+        String stats = ",Average number of holes: " + finalAverageHoles
+        		+ ",Average height: " + finalAverageHeight 
+        		+ ", Rows Cleared: " + rowsCleared;
+        //p.writeClearedRows(rowsCleared, start, end);
+        p.writeToLog(start, end, stats);
         return fitnessFunc;
     }
 }

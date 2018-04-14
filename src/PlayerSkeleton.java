@@ -198,10 +198,23 @@ public class PlayerSkeleton {
 	}
 
 	public void writeClearedRows(int rowsCleared, String start, String end) {
-		String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator + "rowsCleared.csv_" + start;
+		String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator + "rowsCleared_" + start + ".csv";
 		try {
 			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, true)));
 			out.println(start + "," + end + "," + Integer.toString(rowsCleared));
+			out.close();
+		} catch (IOException e) {
+			//exception handling left as an exercise for the reader
+			LOGGER.severe(e.getMessage());
+		}
+	}
+	
+	
+	public void writeToLog(String start, String end, String text) {
+		String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator + "rowsCleared_" + start + ".csv";
+		try {
+			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, true)));
+			out.println(start + "," + end + "," + text);
 			out.close();
 		} catch (IOException e) {
 			//exception handling left as an exercise for the reader
