@@ -34,6 +34,18 @@ public class MyFitnessFunction extends FitnessFunction {
 		return sum;
 	}
 
+	public static int maxHeight(State s) {
+		int[] tops = s.getTop();
+		int max = 0;
+		for (int top: tops) {
+			//top is row + 1, row is 0-based
+			if (top > max) {
+				max = top;
+			}
+		}
+		return max;
+	}
+
     /**
      * Evaluates a particles at a given position
      * @param position : Particle's position
@@ -46,32 +58,46 @@ public class MyFitnessFunction extends FitnessFunction {
         String start = p.logGameStart();
         
         int totalHoles = 0;
-        int totalHeight = 0;
+        int totalAggregateHeight = 0;
+        int totalMaxHeight = 0;
         
         while(!s.hasLost()) {
             s.makeMove(p.pickMove(s,s.legalMoves()));
             int rowsCleared = s.getRowsCleared();
             totalHoles += countHoles(s);
-            int currHeight = aggregateHeight(s);
-            totalHeight += currHeight;
+            totalAggregateHeight += aggregateHeight(s);
+            totalMaxHeight += maxHeight(s);
 
             if ((rowsCleared - rowsCounter) >= 100 && p.getShouldLogEveryHundredRows()) {
                 p.logEveryHundredRows(rowsCleared);
                 rowsCounter = rowsCleared;
             }
         }
+
         int rowsCleared = s.getRowsCleared();
         int turnsPlayed = s.getTurnNumber();
         double finalAverageHoles = (double)totalHoles / turnsPlayed;
-        double finalAverageHeight = (double)totalHeight / turnsPlayed;
-        
+        double finalAverageHeight = (double)totalAggregateHeight / turnsPlayed;
+        double finalAverageMaxHeight = (double)totalMaxHeight / turnsPlayed;
+
+		// Change this fitness function according to your task!!
         double fitnessFunc = rowsCleared - finalAverageHoles - finalAverageHeight;
+
         String end = p.logGameOver(rowsCleared, s.getField());
 
-        String stats = (int)finalAverageHoles
-        		+ "," + (int)finalAverageHeight
-        		+ "," + rowsCleared;
-        p.writeToLog(PSO.startTime, start, end, stats);
+		StringBuilder sb = new StringBuilder();
+		for (double weight : position) {
+			sb.append(weight);
+			sb.append(",");
+		}
+
+		// Change the stats according to your task!!
+        String stats = finalAverageHoles
+        		+ "," + finalAverageHeight
+        		+ ",weights," + sb.toString()
+				+ "rows," + rowsCleared;
+
+        p.writeToCSV(PSO.info, PSO.startTime, start, end, stats);
         return fitnessFunc;
     }
 

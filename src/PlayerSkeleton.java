@@ -159,7 +159,7 @@ public class PlayerSkeleton {
 	}
 
 	public String logGameStart() {
-		String startTimeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( new Date() );
+		String startTimeStamp = new SimpleDateFormat("MM-dd-HH.mm.ss").format( new Date() );
 		LOGGER.info("New game started at: " + startTimeStamp);
 		LOGGER.info("Rows log:");
 		return startTimeStamp;
@@ -170,7 +170,7 @@ public class PlayerSkeleton {
 	}
 
 	public String logGameOver(int rowsCleared, int[][] field) {
-		String endTimeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( new Date() );
+		String endTimeStamp = new SimpleDateFormat("MM-dd-HH.mm.ss").format( new Date() );
 		LOGGER.info("Game ended at: " + endTimeStamp);
 		LOGGER.info ("Rows cleared: "+ Integer.toString(rowsCleared));
 		if (this.shouldLogFinalGrid) {
@@ -201,8 +201,9 @@ public class PlayerSkeleton {
 	}
 
 
-	public void writeToLog(String trainingStart, String gameStart, String gameEnd, String text) {
-		String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator + "rowsCleared_" + trainingStart + ".csv";
+	public void writeToCSV(String psoInfo, String trainingStart, String gameStart, String gameEnd, String text) {
+		String info = psoInfo == null ? "" : psoInfo;
+		String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator  + info + "_" + trainingStart + ".csv";
 		try {
 			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, true)));
 			out.println(gameStart + "," + gameEnd + "," + text);

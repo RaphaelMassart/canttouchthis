@@ -1,18 +1,40 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Logger;
 
 import net.sourceforge.jswarm_pso.Swarm;
 import net.sourceforge.jswarm_pso.example_2.SwarmShow2D;
 
 public class PSO {
-
-    public static String startTime;
+    private static final Logger LOGGER = Logger.getLogger( PSO.class.getName() );
     private static final double INERTIA_WEIGHT = 0.72;
     private static final double CONGITIVE_TERM_C1 = 1.42;
     private static final double SOCIAL_TERM_C2 = 1.42;
     private static final double MAX_POSITION = 1;
     private static final double MIN_POSITION = -1;
     private static final double MAXMIN_VELOCITY = 0.5;
+    public static String startTime;
+    public static int numberOfParticles;
+    public static int numberOfIterations;
+    public static String info;
+
+    public static void writeToCSV(String text) {
+
+        String filePath = System.getProperty("user.home") + File.separator + "tetris_log" + File.separator  + PSO.info + "_" + PSO.startTime + ".csv";
+        try {
+            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, true)));
+            out.println(text);
+            out.close();
+        } catch (IOException e) {
+            //exception handling left as an exercise for the reader
+            LOGGER.severe(e.getMessage());
+        }
+    }
 
     //-------------------------------------------------------------------------
     // Main
@@ -31,11 +53,15 @@ public class PSO {
             }
         }
 
-        Swarm.DEFAULT_NUMBER_OF_PARTICLES  = firstArg == 0 ? Swarm.DEFAULT_NUMBER_OF_PARTICLES : firstArg;
-        int numberOfIterations = secondArg == 0 ? 25 : secondArg;
+        Swarm.DEFAULT_NUMBER_OF_PARTICLES = firstArg == 0 ? Swarm.DEFAULT_NUMBER_OF_PARTICLES : firstArg;
+        PSO.numberOfIterations = secondArg == 0 ? 25 : secondArg;
+        PSO.numberOfParticles = Swarm.DEFAULT_NUMBER_OF_PARTICLES;
+        PSO.info = "PSO_" +  numberOfParticles + "_" + numberOfIterations;
+
+        int numberOfIterations = PSO.numberOfIterations;
 
         System.out.println("Begin: PSO\n");
-        PSO.startTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( new Date() );
+        PSO.startTime = new SimpleDateFormat("MM-dd-HH.mm.ss").format( new Date() );
 
         // Create a swarm (using 'MyParticle' as sample particle and 'MyFitnessFunction' as fitness function)
         Swarm swarm = new Swarm(Swarm.DEFAULT_NUMBER_OF_PARTICLES , new MyParticle(), new MyFitnessFunction());
@@ -66,8 +92,8 @@ public class PSO {
                 swarm.evolve();
         }
 
-        // Print results
-        System.out.println(swarm.toStringStats());
-        System.out.println("End: Example 1");
+        PSO.writeToCSV(swarm.toStringStats());
+
     }
+
 }
