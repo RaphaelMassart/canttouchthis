@@ -18,9 +18,10 @@ import java.util.logging.SimpleFormatter;
 public class PlayerSkeleton {
 	private static final Logger LOGGER = Logger.getLogger( PlayerSkeleton.class.getName() );
 	private double numHolesWeight = 14; //1.6;//7.6;//0.35663;
+	private double numWellsWeight = 5;
 	private double bumpinessWeight = 6.1;//3.1;//0.184483;
 	private double aggregateHeightWeight = 1.8;//0.8;//0.510066;
-	private double rowsClearedWeight = 1.8;//0.8;//-0.760666;
+	private double rowsClearedWeight = -1.8;//0.8;//-0.760666;
 	private boolean oneLookAhead = false;
 	private boolean shouldLogEveryHundredRows = true;
 	private boolean shouldLogFinalGrid = false;
@@ -41,9 +42,10 @@ public class PlayerSkeleton {
 	public PlayerSkeleton(double weights[], boolean oneLookAhead, boolean logHundredRows, boolean logGrid) {
 		this();
 		this.numHolesWeight = weights[0];
-		this.bumpinessWeight = weights[1];
-		this.aggregateHeightWeight = weights[2];
-		this.rowsClearedWeight = weights[3];
+		this.numWellsWeight = weights[1];
+		this.bumpinessWeight = weights[2];
+		this.aggregateHeightWeight = weights[3];
+		this.rowsClearedWeight = weights[4];
 		this.oneLookAhead = oneLookAhead;
 		this.shouldLogEveryHundredRows = logHundredRows;
 		this.shouldLogFinalGrid = logGrid;
@@ -85,7 +87,7 @@ public class PlayerSkeleton {
 	}
 
 
-	public static int aggregateHeight(InnerState s) {
+	public int aggregateHeight(InnerState s) {
 		int[] tops = s.getTop();
 		int sum = 0;
 		for (int top: tops) {
@@ -95,13 +97,50 @@ public class PlayerSkeleton {
 		return sum;
 	}
 
+	public int countWells(InnerState s) {
+		int[][] field = s.getField();
+		int rowsNum = field.length;
+		int colsNum = field[0].length;
+		int totalWellCount = 0;
+
+		for (int i = rowsNum - 1; i >= 0 ; i--) {
+			if(field[i][0] == 0 && field[i][1] != 0) {
+				totalWellCount ++;
+			}
+			if(field[i][0] != 0 ) {
+				break;
+			}
+		}
+		for (int j = 1; j < colsNum - 1; j++) {
+			for (int i = rowsNum - 1; i >= 0 ; i--) {
+				if(field[i][j] == 0 && field[i][j-1] != 0 && field[i][j+1] != 0) {
+					totalWellCount ++;
+				}
+				if(field[i][j] != 0) {
+					break;
+				}
+			}
+		}
+		for (int i = rowsNum - 1; i >= 0 ; i--) {
+			if(field[i][colsNum - 1] == 0 && field[i][colsNum - 2] != 0) {
+				totalWellCount ++;
+			}
+			if(field[i][colsNum - 1] != 0 ) {
+				break;
+			}
+		}
+		return totalWellCount;
+	}
+
 	public double calculateCost(InnerState s, int rowsCleared) {
 
 		int numHoles = countHoles(s);
+		int numWells = countWells(s);
 		int aggregateHeight = aggregateHeight(s);
 		int bumpiness = calculateBumpiness(s);
 
 		double cost = numHolesWeight * numHoles +
+				numWellsWeight * numWells +
 				aggregateHeightWeight * aggregateHeight +
 				bumpinessWeight * bumpiness +
 				rowsClearedWeight * rowsCleared;
@@ -165,9 +204,16 @@ public class PlayerSkeleton {
 		return startTimeStamp;
 	}
 
+	public String EvaluationStart() {
+		String startTimeStamp = new SimpleDateFormat("MM-dd-HH.mm.ss").format( new Date() );
+		LOGGER.info("New evaluation started at: " + startTimeStamp);
+		return startTimeStamp;
+	}
+
 	public void logEveryHundredRows(int rowsCleared) {
 		LOGGER.info(Integer.toString(rowsCleared));
 	}
+
 
 	public String logGameOver(int rowsCleared, int[][] field) {
 		String endTimeStamp = new SimpleDateFormat("MM-dd-HH.mm.ss").format( new Date() );
@@ -184,6 +230,14 @@ public class PlayerSkeleton {
 				LOGGER.info(sb.toString());
 			}
 		}
+		LOGGER.info("===================================");
+		return endTimeStamp;
+	}
+
+	public String logEvaluationOver(double avgRowsCleared) {
+		String endTimeStamp = new SimpleDateFormat("MM-dd-HH.mm.ss").format( new Date() );
+		LOGGER.info("Evaluation ended at: " + endTimeStamp);
+		LOGGER.info("Average Rows Cleared: " + avgRowsCleared);
 		LOGGER.info("===================================");
 		return endTimeStamp;
 	}

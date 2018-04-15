@@ -52,38 +52,45 @@ public class MyFitnessFunction extends FitnessFunction {
      * @return Fitness function for a particle
      */
     public double evaluate(double position[]) {
-        int rowsCounter = 0;
-        State s = new State();
-        PlayerSkeleton p = new PlayerSkeleton(position, false, false, false);
-        String start = p.logGameStart();
-        
-        int totalHoles = 0;
-        int totalAggregateHeight = 0;
-        int totalMaxHeight = 0;
-        
-        while(!s.hasLost()) {
-            s.makeMove(p.pickMove(s,s.legalMoves()));
-            int rowsCleared = s.getRowsCleared();
-            totalHoles += countHoles(s);
-            totalAggregateHeight += aggregateHeight(s);
-            totalMaxHeight += maxHeight(s);
 
-            if ((rowsCleared - rowsCounter) >= 100 && p.getShouldLogEveryHundredRows()) {
-                p.logEveryHundredRows(rowsCleared);
-                rowsCounter = rowsCleared;
-            }
-        }
+    	int numberOfEvaluations = 5;
+		PlayerSkeleton p = new PlayerSkeleton(position, false, false, false);
+		String start = p.logGameStart();
+		int rowsCounter = 0;
+		int totalHoles = 0;
+		int totalAggregateHeight = 0;
+		int totalMaxHeight = 0;
+		int totalRowsCleared = 0;
+		int totalTurns = 0;
 
-        int rowsCleared = s.getRowsCleared();
-        int turnsPlayed = s.getTurnNumber();
-        double finalAverageHoles = (double)totalHoles / turnsPlayed;
-        double finalAverageHeight = (double)totalAggregateHeight / turnsPlayed;
-        double finalAverageMaxHeight = (double)totalMaxHeight / turnsPlayed;
+
+    	for (int i = 0; i < numberOfEvaluations; i++) {
+			State s = new State();
+			while (!s.hasLost()) {
+				s.makeMove(p.pickMove(s, s.legalMoves()));
+				int rowsCleared = s.getRowsCleared();
+				totalHoles += countHoles(s);
+				totalAggregateHeight += aggregateHeight(s);
+				totalMaxHeight += maxHeight(s);
+
+				if ((rowsCleared - rowsCounter) >= 100 && p.getShouldLogEveryHundredRows()) {
+					p.logEveryHundredRows(rowsCleared);
+					rowsCounter = rowsCleared;
+				}
+			}
+			totalRowsCleared += s.getRowsCleared();
+			totalTurns += s.getTurnNumber();
+		}
+
+        double finalAverageHoles = (double)totalHoles / totalTurns;
+        double finalAverageHeight = (double)totalAggregateHeight / totalTurns;
+        double finalAverageMaxHeight = (double)totalMaxHeight / totalTurns;
+        double finalAverageRows = (double)totalRowsCleared / numberOfEvaluations;
 
 		// Change this fitness function according to your task!!
-        double fitnessFunc = rowsCleared - finalAverageHoles - finalAverageHeight;
+        double fitnessFunc = finalAverageRows - finalAverageHoles - finalAverageHeight;
 
-        String end = p.logGameOver(rowsCleared, s.getField());
+        String end = p.logEvaluationOver(finalAverageRows);
 
 		StringBuilder sb = new StringBuilder();
 		for (double weight : position) {
@@ -95,11 +102,9 @@ public class MyFitnessFunction extends FitnessFunction {
         String stats = finalAverageHoles
         		+ "," + finalAverageHeight
         		+ ",weights," + sb.toString()
-				+ "rows," + rowsCleared;
+				+ "rows," + finalAverageRows;
 
         p.writeToCSV(PSO.info, PSO.startTime, start, end, stats);
         return fitnessFunc;
     }
-
-
 }
