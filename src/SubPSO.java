@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Logger;
 
-import jswarm_pso.Swarm;
+import jswarm_pso.SubSwarm;
 
 public class SubPSO implements Runnable {
     private static final Logger LOGGER = Logger.getLogger( SubPSO.class.getName() );
@@ -21,28 +21,27 @@ public class SubPSO implements Runnable {
     }
 
     public void run() {
-        // Create a swarm (using 'MyParticle' as sample particle and 'MyFitnessFunction' as fitness function)
-        Swarm swarm = new Swarm(this.numberOfParticles, new MyParticle(), new MyFitnessFunction());
+        // Create a subSwarm (using 'MyParticle' as sample particle and 'MyFitnessFunction' as fitness function)
+        SubSwarm subSwarm = new SubSwarm(this.numberOfParticles, new MyParticle(), new MyFitnessFunction());
 
         // Use neighborhood
 //        Neighborhood neigh = new Neighborhood1D(Swarm.DEFAULT_NUMBER_OF_PARTICLES  / 5, true);
-//        swarm.setNeighborhood(neigh);
-//        swarm.setNeighborhoodIncrement(0.9);
+//        subSwarm.setNeighborhood(neigh);
+//        subSwarm.setNeighborhoodIncrement(0.9);
 
         // Set position (and velocity) constraints. I.e.: where to look for solutions
-        swarm.setInertia(PSO.INERTIA_WEIGHT);
-        swarm.setMaxPosition(PSO.MAX_POSITION);
-        swarm.setMinPosition(PSO.MIN_POSITION);
-        swarm.setMaxMinVelocity(PSO.MAXMIN_VELOCITY);
-        swarm.setParticleIncrement(PSO.CONGITIVE_TERM_C1);
-        swarm.setGlobalIncrement(PSO.SOCIAL_TERM_C2);
+        subSwarm.setInertia(PSO.INERTIA_WEIGHT);
+        subSwarm.setMaxPosition(PSO.MAX_POSITION);
+        subSwarm.setMinPosition(PSO.MIN_POSITION);
+        subSwarm.setMaxMinVelocity(PSO.MAXMIN_VELOCITY);
+        subSwarm.setParticleIncrement(PSO.CONGITIVE_TERM_C1);
+        subSwarm.setGlobalIncrement(PSO.SOCIAL_TERM_C2);
 
         for (int i = 0; i < numberOfIterations; i++) {
-            swarm.evolve();
-            swarm.getBestPosition();
+            subSwarm.evolve();
         }
 
-        PSO.writeToCSV(swarm.toStringStats());
+        PSO.writeToCSV(subSwarm.toStringStats());
 
     }
 
