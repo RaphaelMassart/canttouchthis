@@ -1,6 +1,4 @@
 // TODO Advanced heuristics: holes
-// TODO 1 Forward looking
-// TODO Genetic algo training
 
 import java.io.BufferedWriter;
 import java.io.File;

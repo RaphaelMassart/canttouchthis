@@ -11,16 +11,16 @@ import jswarm_pso.Swarm;
 
 public class PSO {
     private static final Logger LOGGER = Logger.getLogger( PSO.class.getName() );
-    private static final double INERTIA_WEIGHT = 0.72;
-    private static final double CONGITIVE_TERM_C1 = 1.42;
-    private static final double SOCIAL_TERM_C2 = 1.42;
-    private static final double MAX_POSITION = 1;
-    private static final double MIN_POSITION = -1;
-    private static final double MAXMIN_VELOCITY = 0.5;
-    public static String startTime;
-    public static int numberOfParticles;
-    public static int numberOfIterations;
-    public static String info;
+    static final double INERTIA_WEIGHT = 0.72;
+    static final double CONGITIVE_TERM_C1 = 1.42;
+    static final double SOCIAL_TERM_C2 = 1.42;
+    static final double MAX_POSITION = 1;
+    static final double MIN_POSITION = -1;
+    static final double MAXMIN_VELOCITY = 0.5;
+    private static String startTime;
+    private static int numberOfParticles;
+    private static int numberOfIterations;
+    private static String info;
 
     public static void writeToCSV(String text) {
 
@@ -35,9 +35,6 @@ public class PSO {
         }
     }
 
-    //-------------------------------------------------------------------------
-    // Main
-    //-------------------------------------------------------------------------
     public static void main(String[] args) {
         int firstArg = 0;
         int secondArg = 0;
