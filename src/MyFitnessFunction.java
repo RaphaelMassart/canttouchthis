@@ -1,4 +1,4 @@
-import net.sourceforge.jswarm_pso.FitnessFunction;
+import jswarm_pso.FitnessFunction;
 
 public class MyFitnessFunction extends FitnessFunction {
 

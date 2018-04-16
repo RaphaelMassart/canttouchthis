@@ -7,8 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Logger;
 
-import net.sourceforge.jswarm_pso.Swarm;
-import net.sourceforge.jswarm_pso.example_2.SwarmShow2D;
+import jswarm_pso.Swarm;
 
 public class PSO {
     private static final Logger LOGGER = Logger.getLogger( PSO.class.getName() );
@@ -80,16 +79,8 @@ public class PSO {
         swarm.setParticleIncrement(PSO.CONGITIVE_TERM_C1);
         swarm.setGlobalIncrement(PSO.SOCIAL_TERM_C2);
 
-        boolean showGraphics = false;
-
-        if (showGraphics) {
-            int displayEvery = numberOfIterations / 100 + 1;
-            SwarmShow2D ss2d = new SwarmShow2D(swarm, numberOfIterations, displayEvery, true);
-            ss2d.run();
-        } else {
-            // Optimize (and time it)
-            for (int i = 0; i < numberOfIterations; i++)
-                swarm.evolve();
+        for (int i = 0; i < numberOfIterations; i++) {
+            swarm.evolve();
         }
 
         PSO.writeToCSV(swarm.toStringStats());

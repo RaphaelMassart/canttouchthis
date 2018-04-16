@@ -1,4 +1,4 @@
-import net.sourceforge.jswarm_pso.Particle;
+import jswarm_pso.Particle;
 
 public class MyParticle extends Particle {
     public MyParticle() {
