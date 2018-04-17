@@ -234,9 +234,10 @@ public class PlayerSkeleton {
 
 	public String logEvaluationOver(double avgRowsCleared) {
 		String endTimeStamp = new SimpleDateFormat("MM-dd-HH.mm.ss").format( new Date() );
-		LOGGER.info("Evaluation ended at: " + endTimeStamp);
-		LOGGER.info("Average Rows Cleared: " + avgRowsCleared);
-		LOGGER.info("===================================");
+		String end = "Evaluation ended at: " + endTimeStamp;
+		String avgRows = "Average Rows Cleared: " + avgRowsCleared;
+		String breakLine = "===================================";
+		LOGGER.info(Thread.currentThread().getName() + " "+ end + "\n" + avgRows + breakLine);
 		return endTimeStamp;
 	}
 

@@ -6,5 +6,28 @@ public class SubSwarm extends Swarm{
         super(numberOfParticles, sampleParticle, fitnessFunction);
     }
 
+    public void subEvaluate() {
+        // Initialize (if not already done)
+        if (particles == null) init();
+
+        evaluate(); // Evaluate particles
+//        return getBestPosition();
+    }
+
+    public void subUpdate() {
+        update(); // Update positions and velocities
+
+        variablesUpdate.update(this);
+    }
+
+    public void evolve(double[] globalBestPosition){
+        Thread.currentThread().getName();
+        if(globalBestPosition != null) {
+            this.setBestPosition(globalBestPosition);
+            particles[bestParticleIndex].copyPosition(globalBestPosition);
+            subUpdate();
+        }
+        subEvaluate();
+    }
 
 }

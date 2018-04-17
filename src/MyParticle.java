@@ -1,7 +1,12 @@
 import jswarm_pso.Particle;
 
 public class MyParticle extends Particle {
-    public MyParticle() {
-        super(5); // Create a 5-dimentional particle
+
+    public MyParticle(){
+        super(PSO.PARTICLE_DIMENSION);
     }
+
+//    public MyParticle(int dimension) {
+//        super(dimension); // Create a n-dimentional particle
+//    }
 }
