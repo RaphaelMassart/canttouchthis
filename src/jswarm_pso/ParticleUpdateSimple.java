@@ -1,5 +1,7 @@
 package jswarm_pso;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * Particle update strategy
  * 
@@ -38,9 +40,9 @@ public class ParticleUpdateSimple extends ParticleUpdate {
 	public void begin(Swarm swarm) {
 		int i, dim = swarm.getSampleParticle().getDimension();
 		for (i = 0; i < dim; i++) {
-			rlocal[i] = Math.random();
-			rglobal[i] = Math.random();
-			rneighborhood[i] = Math.random();
+			rlocal[i] = ThreadLocalRandom.current().nextDouble();
+			rglobal[i] = ThreadLocalRandom.current().nextDouble();
+			rneighborhood[i] = ThreadLocalRandom.current().nextDouble();
 		}
 	}
 

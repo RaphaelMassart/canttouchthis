@@ -175,7 +175,6 @@ public class PSO {
 
                 try {
                     cyclicBarrier.await();
-                    System.out.println(cyclicBarrier.getNumberWaiting());
                 } catch (InterruptedException e) {
                     System.out.print(e.getMessage());
                 } catch (BrokenBarrierException e) {

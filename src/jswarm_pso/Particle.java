@@ -2,6 +2,7 @@ package jswarm_pso;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Basic (abstract) particle
@@ -176,8 +177,8 @@ public abstract class Particle {
 			if (Double.isInfinite(minVelocity[i])) throw new RuntimeException("minVelocity[" + i + "] is Infinite!");
 
 			// Initialize using uniform distribution
-			position[i] = (maxPosition[i] - minPosition[i]) * Math.random() + minPosition[i];
-			velocity[i] = (maxVelocity[i] - minVelocity[i]) * Math.random() + minVelocity[i];
+			position[i] = (maxPosition[i] - minPosition[i]) * ThreadLocalRandom.current().nextDouble() + minPosition[i];
+			velocity[i] = (maxVelocity[i] - minVelocity[i]) * ThreadLocalRandom.current().nextDouble() + minVelocity[i];
 
 			bestPosition[i] = Double.NaN;
 		}
