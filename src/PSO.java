@@ -73,7 +73,7 @@ public class PSO {
         }
         int numberOfParticles = firstArg == 0 ? Swarm.DEFAULT_NUMBER_OF_PARTICLES : firstArg;
         int numberOfIterations = secondArg == 0 ? 100 : secondArg;
-        int numberOfThreads = thirdArg == 0 ? 3 : thirdArg;
+        int numberOfThreads = thirdArg == 0 ? 1 : thirdArg;
         PSO pso = new PSO(numberOfParticles, numberOfIterations, numberOfThreads);
         pso.train();
     }
@@ -109,7 +109,6 @@ public class PSO {
             this.numberOfIterations = numberOfIterations;
         }
 
-        @Override
         public void run() {
             // Create a subSwarm (using 'MyParticle' as sample particle and 'MyFitnessFunction' as fitness function)
             SubSwarm subSwarm = new SubSwarm(this.numberOfSubParticles, new MyParticle(), new MyFitnessFunction());
@@ -130,7 +129,7 @@ public class PSO {
             for (int i = 0; i < this.numberOfIterations; i ++) {
 
 //                double[] bestPosition = subSwarm.getBestPosition();
-//
+
 //                String threadName = Thread.currentThread().getName();
 //
 //                String text = "";
@@ -145,9 +144,8 @@ public class PSO {
 //                }
 //                logInfo(threadName, i + "-before fitness," + subSwarm.getBestFitness() + ",global," + PSO.globalBestFitness + ",weights," + text + ",global," + text2);
 
-                subSwarm.evolve(PSO.globalBestPosition);
-
-                //evolve updates the local best position and fitness for sub swarm
+                //evolve first update, then evaluate
+                subSwarm.evolve(PSO.globalBestFitness, PSO.globalBestPosition);
 
                 double[] bestPosition = subSwarm.getBestPosition();
                 double fit = subSwarm.getBestFitness();
@@ -169,7 +167,6 @@ public class PSO {
 
                     if (PSO.globalBestFitness == -1 || PSO.FITNESS_FUNCTION.isBetterThan(PSO.globalBestFitness, fit)) {
                         PSO.globalBestFitness = fit; // Copy best fitness, index, and position vector
-                        // bestParticleIndex = i;
                         if (PSO.globalBestPosition == null) PSO.globalBestPosition = new double[PSO.PARTICLE_DIMENSION];
                         for (int j = 0; j < PSO.PARTICLE_DIMENSION; j++)
                             PSO.globalBestPosition[j] = bestPosition[j];
@@ -178,6 +175,7 @@ public class PSO {
 
                 try {
                     cyclicBarrier.await();
+                    System.out.println(cyclicBarrier.getNumberWaiting());
                 } catch (InterruptedException e) {
                     System.out.print(e.getMessage());
                 } catch (BrokenBarrierException e) {
@@ -186,20 +184,24 @@ public class PSO {
 
             }
 
-            PSO.writeToCSV(subSwarm.toStringStats());
+            PSO.writeToCSV(Thread.currentThread().getName() + subSwarm.toStringStats());
+            PSO.writeToCSV(globalToStringStats());
 
         }
 
         public void logInfo(String threadName, String text) {
             PSO.writeToCSV(threadName + "," + text);
         }
+
+        public String globalToStringStats() {
+            String stats = "";
+            if (!Double.isNaN(globalBestFitness)) {
+                stats += "Best fitness: " + globalBestFitness + "\nBest position: \t[";
+                for (int i = 0; i < globalBestPosition.length; i++)
+                    stats += globalBestPosition[i] + (i < (globalBestPosition.length - 1) ? ", " : "");
+                stats += "]\nNumber of evaluations: " + numberOfIterations * numberOfParticles + "\n";
+            }
+            return stats;
+        }
     }
-
-//    class UpdateAll implements Runnable {
-//        @Override
-//        public void run() {
-//
-//        }
-//    }
-
 }

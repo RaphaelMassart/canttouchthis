@@ -11,7 +11,6 @@ public class SubSwarm extends Swarm{
         if (particles == null) init();
 
         evaluate(); // Evaluate particles
-//        return getBestPosition();
     }
 
     public void subUpdate() {
@@ -20,11 +19,21 @@ public class SubSwarm extends Swarm{
         variablesUpdate.update(this);
     }
 
-    public void evolve(double[] globalBestPosition){
-        Thread.currentThread().getName();
+    public void evolve(double globalBestFitness, double[] globalBestPosition){
+        if(globalBestFitness != -1) bestFitness = globalBestFitness;
         if(globalBestPosition != null) {
-            this.setBestPosition(globalBestPosition);
-            particles[bestParticleIndex].copyPosition(globalBestPosition);
+            // copy globalBestPosition in to the bestPosition of this SubSwarm
+            if (bestPosition == null) bestPosition = new double[sampleParticle.getDimension()];
+            for (int i = 0; i < globalBestPosition.length; i ++) {
+                bestPosition[i] = globalBestPosition[i];
+
+                // No need to change the best particle inside a subswarm
+                // Just update the best position found so far.
+                // NO need to change the best particle index either since it's not used for updating
+                // particles[bestParticleIndex].position[i] = globalBestPosition[i];
+                // particles[bestParticleIndex].bestPosition[i] = globalBestPosition[i];
+            }
+
             subUpdate();
         }
         subEvaluate();
