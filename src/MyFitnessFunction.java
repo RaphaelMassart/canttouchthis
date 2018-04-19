@@ -1,50 +1,9 @@
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import jswarm_pso.FitnessFunction;
 
 public class MyFitnessFunction extends FitnessFunction {
-
-	public int countHoles(State s) {
-		int[][] field = s.getField();
-		int rowsNum = field.length;
-		int colsNum = field[0].length;
-		int totalHoleCount = 0;
-
-		for (int j = 0; j < colsNum; j++) {
-			int holeCounter = 0;
-			for (int i = 0; i < rowsNum -1; i++) {
-				if(field[i][j] == 0) {
-					holeCounter++;
-				}
-
-				if (field[i][j] !=0 && holeCounter != 0) {
-					totalHoleCount += holeCounter;
-					holeCounter = 0;
-				}
-			}
-		}
-		return totalHoleCount;
-	}
-	
-	public static int aggregateHeight(State s) {
-		int[] tops = s.getTop();
-		int sum = 0;
-		for (int top: tops) {
-			//top is row + 1, row is 0-based
-			sum += top;
-		}
-		return sum;
-	}
-
-	public static int pileHeight(State s) {
-		int[] tops = s.getTop();
-		int max = 0;
-		for (int top: tops) {
-			//top is row + 1, row is 0-based
-			if (top > max) {
-				max = top;
-			}
-		}
-		return max;
-	}
 
     /**
      * Evaluates a particles at a given position
@@ -55,28 +14,47 @@ public class MyFitnessFunction extends FitnessFunction {
 
     	int numberOfEvaluations = 5;
 		PlayerSkeleton p = new PlayerSkeleton(position, false, false, false);
-		String start = p.logGameStart();
+		String start = new SimpleDateFormat("MM-dd-HH.mm.ss").format( new Date() );
 		int rowsCounter = 0;
 		int totalHoles = 0;
-		// max number of holes occurred in a state. Pick a single largest among the entire game
-		int totalMaxHoles = 0;
+
 		int totalAggregateHeight = 0;
 		int totalPileHeight = 0;
+		// max number of holes occurred in a state. Pick a single largest among the entire game
+		int totalMaxHoles = 0;
+		int totalMaxColTransitions = 0;
+		int totalMaxRowTransitions = 0;
+		int totalColTransitions = 0;
+		int totalRowTransitions = 0;
 		int totalRowsCleared = 0;
 		int totalTurns = 0;
 
     	for (int i = 0; i < numberOfEvaluations; i++) {
 
 			int maxHoles = 0;
+			int maxColTransitions = 0;
+			int maxRowTransitions = 0;
 			State s = new State();
 			while (!s.hasLost()) {
 				s.makeMove(p.pickMove(s, s.legalMoves()));
 				int rowsCleared = s.getRowsCleared();
-				int holes = countHoles(s);
+				int field[][] = s.getField();
+				int tops[] = s.getTop();
+
+				totalAggregateHeight += p.totalHeight(tops);
+				totalPileHeight += p.maxHeight(tops);
+
+				int holes = p.countHoles(field);
 				totalHoles += holes;
-				maxHoles = holes > maxHoles ? holes : maxHoles;
-				totalAggregateHeight += aggregateHeight(s);
-				totalPileHeight += pileHeight(s);
+				maxHoles = Math.max(maxHoles, holes);
+
+				int colTransitions = p.getColTransitions(field);
+				totalColTransitions += colTransitions;
+				maxColTransitions = Math.max(maxColTransitions, colTransitions);
+
+				int rowTransitions = p.getRowTransitions(field);
+				totalRowTransitions += rowTransitions;
+				maxRowTransitions = Math.max(maxRowTransitions, rowTransitions);
 
 				if ((rowsCleared - rowsCounter) >= 100 && p.getShouldLogEveryHundredRows()) {
 					p.logEveryHundredRows(rowsCleared);
@@ -84,24 +62,34 @@ public class MyFitnessFunction extends FitnessFunction {
 				}
 			}
 			totalMaxHoles += maxHoles;
+			totalMaxColTransitions += maxColTransitions;
+			totalMaxRowTransitions += maxRowTransitions;
+
 			totalRowsCleared += s.getRowsCleared();
 			totalTurns += s.getTurnNumber();
 		}
 
-        double finalAverageHoles = (double)totalHoles / totalTurns;
-    	double finalAverageMaxHoles = (double)totalMaxHoles / numberOfEvaluations;
-        double finalAverageAggregateHeight = (double)totalAggregateHeight / totalTurns;
-        double finalAveragePileHeight = (double)totalPileHeight / totalTurns;
-        double finalAverageRowsCleared = (double)totalRowsCleared / numberOfEvaluations;
+		double averagePileHeight = (double)totalPileHeight / totalTurns;
+		double averageRowsCleared = (double)totalRowsCleared / numberOfEvaluations;
+
+        double averageHoles = (double)totalHoles / totalTurns;
+    	double averageMaxHoles = (double)totalMaxHoles / numberOfEvaluations;
+//        double averageAggregateHeight = (double)totalAggregateHeight / totalTurns;
+
+		double averageColTransitions = (double)totalColTransitions / totalTurns;
+		double averageMaxColTransitions = (double)totalMaxColTransitions / numberOfEvaluations;
+		double averageRowTransitions = (double)totalRowTransitions / totalTurns;
+		double averageMaxRowTransitions = (double)totalMaxRowTransitions / numberOfEvaluations;
 
 		// Change this fitness function according to your task!!
+		double maxHeightRatio = (20.0 - averagePileHeight) / 20.0;
+		double holeRatio = (averageMaxHoles - averageHoles) / averageMaxHoles;
+		double colTransitionRatio = (averageMaxColTransitions - averageColTransitions) / averageMaxColTransitions;
+		double rowTransitionRatio = (averageMaxRowTransitions - averageRowTransitions) / averageMaxRowTransitions;
 
-		double holeFitness = (finalAverageMaxHoles - finalAverageHoles) / finalAverageMaxHoles;
-		double maxHeightFitness = (20.0 - finalAveragePileHeight) / 20.0;
+        double fitnessFunc = averageRowsCleared + 500 * holeRatio + 500 * maxHeightRatio + 500 * colTransitionRatio + 500 * rowTransitionRatio;
 
-        double fitnessFunc = finalAverageRowsCleared + 500 * holeFitness + 500 * maxHeightFitness;
-
-        String end = p.logEvaluationOver(finalAverageRowsCleared);
+        String end = new SimpleDateFormat("MM-dd-HH.mm.ss").format( new Date() );
 
 		StringBuilder sb = new StringBuilder();
 		for (double weight : position) {
@@ -110,12 +98,13 @@ public class MyFitnessFunction extends FitnessFunction {
 		}
 
 		// Change the stats according to your task!!
-        String stats = finalAverageHoles
-        		+ "," + finalAveragePileHeight
-				+ "," + holeFitness
-				+ "," + maxHeightFitness
+        String stats = averageHoles
+        		+ "," + maxHeightRatio
+				+ "," + holeRatio
+				+ "," + colTransitionRatio
+				+ "," + rowTransitionRatio
         		+ ",weights," + sb.toString()
-				+ "rows," + finalAverageRowsCleared;
+				+ "rows," + averageRowsCleared;
 
         p.writeToCSV(PSO.info, PSO.startTime, start, end, stats);
         return fitnessFunc;

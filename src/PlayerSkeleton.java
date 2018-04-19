@@ -66,7 +66,7 @@ public class PlayerSkeleton {
 		return this.shouldLogEveryHundredRows;
 	}
 
-	private int totalHeight(int[] tops) {
+	public int totalHeight(int[] tops) {
 		int sum = 0;
 		for (int top: tops) {
 			//top is row + 1, row is 0-based
@@ -75,7 +75,7 @@ public class PlayerSkeleton {
 		return sum;
 	}
 
-	private int maxHeight(int[] tops) {
+	public int maxHeight(int[] tops) {
 		int max = 0;
 		for (int top: tops) {
 			//top is row + 1, row is 0-based
@@ -84,7 +84,7 @@ public class PlayerSkeleton {
 		return max;
 	}
 
-	private int calculateHeightDifference(int[] tops) {
+	public int calculateHeightDifference(int[] tops) {
 		int sum = 0;
 		for (int i = 0; i < tops.length-1; i ++) {
 			sum += Math.abs(tops[i] - tops[i+1]);
@@ -92,7 +92,7 @@ public class PlayerSkeleton {
 		return sum;
 	}
 
-	private int countHoles(int[][] field) {
+	public int countHoles(int[][] field) {
 		int rowsNum = field.length;
 		int colsNum = field[0].length;
 		int totalHoleCount = 0;
@@ -113,7 +113,7 @@ public class PlayerSkeleton {
 		return totalHoleCount;
 	}
 
-	private int deepestWell(int[][] field) {
+	public int deepestWell(int[][] field) {
 		int rowsNum = field.length;
 		int colsNum = field[0].length;
 		int lastColWellCount = 0;
@@ -150,32 +150,37 @@ public class PlayerSkeleton {
 		return Math.max(deepestWell, lastColWellCount);
 	}
 
-	private int getColTransitions(int[][] field) {
+	public int getRowTransitions(int[][] field) {
 		int rowsNum = field.length;
 		int colsNum = field[0].length;
 		int transitions = 0;
 
 		for (int i = 0; i < rowsNum; i ++) {
-			int prevCell = field[i][0];
-			for (int j = 1; j < colsNum; j ++) {
+			int prevCell = -1;
+			for (int j = 0; j < colsNum; j ++) {
 				int currCell = field[i][j];
 				if (currCell != prevCell && (prevCell == 0 || currCell == 0) ) {
 					transitions ++;
 				}
 				prevCell = currCell;
 			}
+			// the right wall is a filled cell
+			if (prevCell == 0) {
+				transitions ++;
+			}
 		}
-		return transitions;
+		// left right walls both count as one transitions => 20 rows * 2 transitions
+		return transitions - 40;
 	}
 
-	private int getRowTransitions(int[][] field) {
+	public int getColTransitions(int[][] field) {
 		int rowsNum = field.length;
 		int colsNum = field[0].length;
 		int transitions = 0;
 
 		for (int j = 0; j < colsNum; j ++) {
-			int prevCell = field[0][j];
-			for (int i = 1; i < rowsNum; i ++) {
+			int prevCell = -1;
+			for (int i = 0; i < rowsNum; i ++) {
 				int currCell = field[i][j];
 				if (currCell != prevCell && (prevCell == 0 || currCell == 0) ) {
 					transitions ++;
@@ -183,7 +188,8 @@ public class PlayerSkeleton {
 				prevCell = currCell;
 			}
 		}
-		return transitions;
+		// bottom wall count as one transition => 10 cols * 1 transition
+		return transitions - 10;
 	}
 
 //	private int getLandingHeight(int[] prevTops, int[] currTops) {
@@ -347,18 +353,18 @@ public class PlayerSkeleton {
 	public static void main(String[] args) {
 		int rowsCounter = 0;
 		State s = new State();
-//		new TFrame(s);
+		new TFrame(s);
 		PlayerSkeleton p = new PlayerSkeleton();
 		String start = p.logGameStart();
 		while(!s.hasLost()) {
 			s.makeMove(p.pickMove(s,s.legalMoves()));
-//			s.draw();
-//			s.drawNext(0,0);
-//			try {
-//				Thread.sleep(1000);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
+			s.draw();
+			s.drawNext(0,0);
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			int rowsCleared = s.getRowsCleared();
 			if ((rowsCleared - rowsCounter) >= 100 && p.shouldLogEveryHundredRows) {
 				p.logEveryHundredRows(rowsCleared);
