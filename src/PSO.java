@@ -29,8 +29,8 @@ public class PSO {
     static final double INERTIA_WEIGHT = 0.72;
     static final double CONGITIVE_TERM_C1 = 1.42;
     static final double SOCIAL_TERM_C2 = 1.42;
-    static final double MAX_POSITION = 1;
-    static final double MIN_POSITION = -1;
+    static final double MAX_POSITION = 3;
+    static final double MIN_POSITION = -3;
     static final double MAXMIN_VELOCITY = 0.5;
     static final int PARTICLE_DIMENSION= 8;
     static String info;
