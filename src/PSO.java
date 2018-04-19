@@ -32,7 +32,7 @@ public class PSO {
     static final double MAX_POSITION = 1;
     static final double MIN_POSITION = -1;
     static final double MAXMIN_VELOCITY = 0.5;
-    static final int PARTICLE_DIMENSION= 5;
+    static final int PARTICLE_DIMENSION= 8;
     static String info;
     static String startTime;
 

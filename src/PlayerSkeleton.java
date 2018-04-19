@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -15,11 +14,19 @@ import java.util.logging.SimpleFormatter;
 
 public class PlayerSkeleton {
 	private static final Logger LOGGER = Logger.getLogger( PlayerSkeleton.class.getName() );
-	private double numHolesWeight = 14; //1.6;//7.6;//0.35663;
-	private double numWellsWeight = 5;
-	private double bumpinessWeight = 6.1;//3.1;//0.184483;
-	private double aggregateHeightWeight = 1.8;//0.8;//0.510066;
-	private double rowsClearedWeight = -1.8;//0.8;//-0.760666;
+	private double rowsClearedWeight = -1.8;
+
+	private double totalHeightWeight = 1.8;
+	private double maximumHeightWeight = 0;
+
+	private double heightDifferencesWeight = 6.1;
+	private double numHolesWeight = 14;
+	private double deepestWellWeight = 5;
+
+	private double colTransitionWeight = 0;
+	private double rowTransitionWeight = 0;
+//	private double landingHeightWeight = 0;
+	
 	private boolean oneLookAhead = false;
 	private boolean shouldLogEveryHundredRows = true;
 	private boolean shouldLogFinalGrid = false;
@@ -39,11 +46,17 @@ public class PlayerSkeleton {
 
 	public PlayerSkeleton(double weights[], boolean oneLookAhead, boolean logHundredRows, boolean logGrid) {
 		this();
-		this.numHolesWeight = weights[0];
-		this.numWellsWeight = weights[1];
-		this.bumpinessWeight = weights[2];
-		this.aggregateHeightWeight = weights[3];
-		this.rowsClearedWeight = weights[4];
+		this.rowsClearedWeight = weights[0];
+		this.totalHeightWeight = weights[1];
+		this.maximumHeightWeight = weights[2];
+		this.heightDifferencesWeight = weights[3];
+		this.numHolesWeight = weights[4];
+		this.deepestWellWeight = weights[5];
+
+		this.colTransitionWeight = weights[6];
+		this.rowTransitionWeight = weights[7];
+//		this.landingHeightWeight = weights[8];
+
 		this.oneLookAhead = oneLookAhead;
 		this.shouldLogEveryHundredRows = logHundredRows;
 		this.shouldLogFinalGrid = logGrid;
@@ -53,8 +66,33 @@ public class PlayerSkeleton {
 		return this.shouldLogEveryHundredRows;
 	}
 
-	public int countHoles(InnerState s) {
-		int[][] field = s.getField();
+	private int totalHeight(int[] tops) {
+		int sum = 0;
+		for (int top: tops) {
+			//top is row + 1, row is 0-based
+			sum += top;
+		}
+		return sum;
+	}
+
+	private int maxHeight(int[] tops) {
+		int max = 0;
+		for (int top: tops) {
+			//top is row + 1, row is 0-based
+			max = Math.max(max, top);
+		}
+		return max;
+	}
+
+	private int calculateHeightDifference(int[] tops) {
+		int sum = 0;
+		for (int i = 0; i < tops.length-1; i ++) {
+			sum += Math.abs(tops[i] - tops[i+1]);
+		}
+		return sum;
+	}
+
+	private int countHoles(int[][] field) {
 		int rowsNum = field.length;
 		int colsNum = field[0].length;
 		int totalHoleCount = 0;
@@ -75,73 +113,111 @@ public class PlayerSkeleton {
 		return totalHoleCount;
 	}
 
-	public int calculateBumpiness(InnerState s) {
-		int[] tops = s.getTop();
-		int sum = 0;
-		for (int i = 0; i < tops.length-1; i ++) {
-			sum += Math.abs(tops[i] - tops[i+1]);
-		}
-		return sum;
-	}
-
-
-	public int aggregateHeight(InnerState s) {
-		int[] tops = s.getTop();
-		int sum = 0;
-		for (int top: tops) {
-			//top is row + 1, row is 0-based
-			sum += top;
-		}
-		return sum;
-	}
-
-	public int countWells(InnerState s) {
-		int[][] field = s.getField();
+	private int deepestWell(int[][] field) {
 		int rowsNum = field.length;
 		int colsNum = field[0].length;
-		int totalWellCount = 0;
+		int lastColWellCount = 0;
+		int deepestWell = 0;
 
 		for (int i = rowsNum - 1; i >= 0 ; i--) {
 			if(field[i][0] == 0 && field[i][1] != 0) {
-				totalWellCount ++;
+				deepestWell ++;
 			}
 			if(field[i][0] != 0 ) {
 				break;
 			}
 		}
 		for (int j = 1; j < colsNum - 1; j++) {
+			int wellCount = 0;
 			for (int i = rowsNum - 1; i >= 0 ; i--) {
 				if(field[i][j] == 0 && field[i][j-1] != 0 && field[i][j+1] != 0) {
-					totalWellCount ++;
+					wellCount ++;
 				}
 				if(field[i][j] != 0) {
 					break;
 				}
 			}
+			deepestWell = Math.max(deepestWell, wellCount);
 		}
 		for (int i = rowsNum - 1; i >= 0 ; i--) {
 			if(field[i][colsNum - 1] == 0 && field[i][colsNum - 2] != 0) {
-				totalWellCount ++;
+				lastColWellCount ++;
 			}
 			if(field[i][colsNum - 1] != 0 ) {
 				break;
 			}
 		}
-		return totalWellCount;
+		return Math.max(deepestWell, lastColWellCount);
 	}
 
-	public double calculateCost(InnerState s, int rowsCleared) {
+	private int getColTransitions(int[][] field) {
+		int rowsNum = field.length;
+		int colsNum = field[0].length;
+		int transitions = 0;
 
-		int numHoles = countHoles(s);
-		int numWells = countWells(s);
-		int aggregateHeight = aggregateHeight(s);
-		int bumpiness = calculateBumpiness(s);
+		for (int i = 0; i < rowsNum; i ++) {
+			int prevCell = field[i][0];
+			for (int j = 1; j < colsNum; j ++) {
+				int currCell = field[i][j];
+				if (currCell != prevCell && (prevCell == 0 || currCell == 0) ) {
+					transitions ++;
+				}
+				prevCell = currCell;
+			}
+		}
+		return transitions;
+	}
 
-		double cost = numHolesWeight * numHoles +
-				numWellsWeight * numWells +
-				aggregateHeightWeight * aggregateHeight +
-				bumpinessWeight * bumpiness +
-				rowsClearedWeight * rowsCleared;
+	private int getRowTransitions(int[][] field) {
+		int rowsNum = field.length;
+		int colsNum = field[0].length;
+		int transitions = 0;
+
+		for (int j = 0; j < colsNum; j ++) {
+			int prevCell = field[0][j];
+			for (int i = 1; i < rowsNum; i ++) {
+				int currCell = field[i][j];
+				if (currCell != prevCell && (prevCell == 0 || currCell == 0) ) {
+					transitions ++;
+				}
+				prevCell = currCell;
+			}
+		}
+		return transitions;
+	}
+
+//	private int getLandingHeight(int[] prevTops, int[] currTops) {
+//		int landingHeight = 0;
+//		for( int i = 0; i < prevTops.length; i ++) {
+//			int topDifference = currTops[i] - prevTops[i];
+//			landingHeight = topDifference > landingHeight ? topDifference : landingHeight;
+//		}
+//		return landingHeight;
+//	}
+
+
+	private double calculateCost(InnerState s, int rowsCleared) {
+		int[] tops = s.getTop();
+		int[][] field = s.getField();
+
+		int totalHeight = totalHeight(tops);
+		int maxHeight = maxHeight(tops);
+		int heightDifference = calculateHeightDifference(tops);
+		int numHoles = countHoles(field);
+		int deepestWell = deepestWell(field);
+		int colTransitions = getColTransitions(field);
+		int rowTransitions = getRowTransitions(field);
+//		int landingHeight = getLandingHeight(prevTops, tops);
+
+		double cost = rowsClearedWeight * rowsCleared +
+				totalHeightWeight * totalHeight +
+				maximumHeightWeight * maxHeight +
+				heightDifferencesWeight * heightDifference +
+				numHolesWeight * numHoles +
+				deepestWellWeight * deepestWell +
+				colTransitionWeight * colTransitions +
+				rowTransitionWeight * rowTransitions;
+
 		return cost;
 	}
 
@@ -153,6 +229,7 @@ public class PlayerSkeleton {
 
 		// iterate through legal moves
 		for (int i = 0; i < legalMoves.length; i++) {
+//			int[] prevTops = s.getTop();
 			InnerState next = new InnerState(s.nextPiece, s.getTurnNumber(), s.getField(), s.getTop());
 			// get move
 			int[] move = legalMoves[i];
@@ -311,11 +388,10 @@ class InnerState extends State {
 
 	// test if it's better to instantiate a new InnerState with field, or use setField to reuse the field again
 	public InnerState(int nextPiece, int turnNumber, int[][] field, int[] top) {
-		super();
 		// static members
-		pHeight = getpHeight();
-		pBottom = getpBottom();
-		pTop = getpTop();
+		pHeight = State.getpHeight();
+		pBottom = State.getpBottom();
+		pTop = State.getpTop();
 
 		this.nextPiece = nextPiece;
 		this.turn = turnNumber;
