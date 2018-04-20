@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -14,34 +15,34 @@ import java.util.logging.SimpleFormatter;
 
 public class PlayerSkeleton {
 	private static final Logger LOGGER = Logger.getLogger( PlayerSkeleton.class.getName() );
-	private double rowsClearedWeight = -1.8;
+	private double rowsClearedWeight = -1.4007571170467685;
 
-	private double totalHeightWeight = 1.8;
-	private double maximumHeightWeight = 0;
+	private double totalHeightWeight = -0.10919109970059218;
+	private double maximumHeightWeight = 0.6969313508133933;
 
-	private double heightDifferencesWeight = 6.1;
-	private double numHolesWeight = 14;
-	private double deepestWellWeight = 5;
+	private double heightDifferencesWeight = 0.7819336226485779;
+	private double numHolesWeight = 3.0;
+	private double deepestWellWeight = 1.8719456072156906;
 
-	private double colTransitionWeight = 0;
-	private double rowTransitionWeight = 0;
+	private double colTransitionWeight = 3.0;
+	private double rowTransitionWeight = 0.8782601934214951;
 //	private double landingHeightWeight = 0;
 	
-	private boolean oneLookAhead = false;
+	private boolean oneLookAhead = true;
 	private boolean shouldLogEveryHundredRows = true;
-	private boolean shouldLogFinalGrid = false;
+	private boolean shouldLogFinalGrid = true;
 
 	public PlayerSkeleton() {
-//		try {
-//			FileHandler fh = new FileHandler("%h/tetris_log/tetris.log", true);
-//			LOGGER.addHandler(fh);
-//			MyFormatter formatter = new MyFormatter();
-//			fh.setFormatter(formatter);
-//		} catch (SecurityException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+		try {
+			FileHandler fh = new FileHandler("%h/tetris_log/tetris.log", true);
+			LOGGER.addHandler(fh);
+			MyFormatter formatter = new MyFormatter();
+			fh.setFormatter(formatter);
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public PlayerSkeleton(double weights[], boolean oneLookAhead, boolean logHundredRows, boolean logGrid) {
@@ -241,11 +242,10 @@ public class PlayerSkeleton {
 			int[] move = legalMoves[i];
 			double currCost;
 
+			int rowsCleared = next.innerMakeMove(move);
 			if (this.oneLookAhead) {
-				next.innerMakeMove(move);
-				currCost = oneLookAhead(next);
+				currCost = rowsCleared == -1 ? Double.MAX_VALUE : oneLookAhead(next);
 			} else {
-				int rowsCleared = next.innerMakeMove(move);
 				currCost = rowsCleared == -1 ? Double.MAX_VALUE : calculateCost(next, rowsCleared);
 			}
 
@@ -262,19 +262,17 @@ public class PlayerSkeleton {
 		int sum = 0;
 		for (int i = 0; i < InnerState.N_PIECES; i++) {
 			int[][] legalMoves = InnerState.legalMoves[i];
-			double minCost = Double.MAX_VALUE;
+			double minCost = Math.pow(10,11);
 			for (int j = 0; j < legalMoves.length; j++) {
 				InnerState next = new InnerState(i, s.getTurnNumber(), s.getField(), s.getTop());
 				int[] move = legalMoves[j];
 				int rowsCleared = next.innerMakeMove(move);
-				double currCost = rowsCleared == -1 ? Math.pow(10,10): calculateCost(next, rowsCleared);
-
-				if (currCost <= minCost) {
-					minCost = currCost;
-				}
+				double currCost = rowsCleared == -1 ? Math.pow(10,10) : calculateCost(next, rowsCleared);
+				minCost = Math.min(minCost, currCost);
 			}
 			sum += minCost;
 		}
+		//System.out.println(sum);
 		return sum;
 	}
 
@@ -353,18 +351,18 @@ public class PlayerSkeleton {
 	public static void main(String[] args) {
 		int rowsCounter = 0;
 		State s = new State();
-		new TFrame(s);
+//		new TFrame(s);
 		PlayerSkeleton p = new PlayerSkeleton();
 		String start = p.logGameStart();
 		while(!s.hasLost()) {
 			s.makeMove(p.pickMove(s,s.legalMoves()));
-			s.draw();
-			s.drawNext(0,0);
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+//			s.draw();
+//			s.drawNext(0,0);
+//			try {
+//				Thread.sleep(30);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
 			int rowsCleared = s.getRowsCleared();
 			if ((rowsCleared - rowsCounter) >= 100 && p.shouldLogEveryHundredRows) {
 				p.logEveryHundredRows(rowsCleared);
