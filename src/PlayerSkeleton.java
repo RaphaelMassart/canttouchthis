@@ -1,5 +1,3 @@
-// TODO Advanced heuristics: holes
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -15,24 +13,25 @@ import java.util.logging.SimpleFormatter;
 
 public class PlayerSkeleton {
 	private static final Logger LOGGER = Logger.getLogger( PlayerSkeleton.class.getName() );
-	private double rowsClearedWeight = -1.4007571170467685;
+	private double rowsClearedWeight = -1.50270676393536;
 
-	private double totalHeightWeight = -0.10919109970059218;
-	private double maximumHeightWeight = 0.6969313508133933;
+	private double totalHeightWeight = -0.110674688795702;
+	private double maximumHeightWeight = 0.434759210414831;
 
-	private double heightDifferencesWeight = 0.7819336226485779;
+	private double heightDifferencesWeight = 0.802924747125291;
 	private double numHolesWeight = 3.0;
-	private double deepestWellWeight = 1.8719456072156906;
+	private double deepestWellWeight = 1.78488949878922;
 
 	private double colTransitionWeight = 3.0;
-	private double rowTransitionWeight = 0.8782601934214951;
-//	private double landingHeightWeight = 0;
-	
-	private boolean oneLookAhead = true;
+	private double rowTransitionWeight = 0.874866631096685;
+
+	//Change this to true to enable oneLookAhead
+	private boolean oneLookAhead = false;
 	private boolean shouldLogEveryHundredRows = true;
 	private boolean shouldLogFinalGrid = true;
 
 	public PlayerSkeleton() {
+		/*
 		try {
 			FileHandler fh = new FileHandler("%h/tetris_log/tetris.log", true);
 			LOGGER.addHandler(fh);
@@ -43,6 +42,7 @@ public class PlayerSkeleton {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		*/
 	}
 
 	public PlayerSkeleton(double weights[], boolean oneLookAhead, boolean logHundredRows, boolean logGrid) {
@@ -56,7 +56,6 @@ public class PlayerSkeleton {
 
 		this.colTransitionWeight = weights[6];
 		this.rowTransitionWeight = weights[7];
-//		this.landingHeightWeight = weights[8];
 
 		this.oneLookAhead = oneLookAhead;
 		this.shouldLogEveryHundredRows = logHundredRows;
@@ -193,15 +192,6 @@ public class PlayerSkeleton {
 		return transitions - 10;
 	}
 
-//	private int getLandingHeight(int[] prevTops, int[] currTops) {
-//		int landingHeight = 0;
-//		for( int i = 0; i < prevTops.length; i ++) {
-//			int topDifference = currTops[i] - prevTops[i];
-//			landingHeight = topDifference > landingHeight ? topDifference : landingHeight;
-//		}
-//		return landingHeight;
-//	}
-
 
 	private double calculateCost(InnerState s, int rowsCleared) {
 		int[] tops = s.getTop();
@@ -214,7 +204,6 @@ public class PlayerSkeleton {
 		int deepestWell = deepestWell(field);
 		int colTransitions = getColTransitions(field);
 		int rowTransitions = getRowTransitions(field);
-//		int landingHeight = getLandingHeight(prevTops, tops);
 
 		double cost = rowsClearedWeight * rowsCleared +
 				totalHeightWeight * totalHeight +
@@ -272,7 +261,6 @@ public class PlayerSkeleton {
 			}
 			sum += minCost;
 		}
-		//System.out.println(sum);
 		return sum;
 	}
 
@@ -351,18 +339,18 @@ public class PlayerSkeleton {
 	public static void main(String[] args) {
 		int rowsCounter = 0;
 		State s = new State();
-//		new TFrame(s);
+		new TFrame(s);
 		PlayerSkeleton p = new PlayerSkeleton();
 		String start = p.logGameStart();
 		while(!s.hasLost()) {
 			s.makeMove(p.pickMove(s,s.legalMoves()));
-//			s.draw();
-//			s.drawNext(0,0);
-//			try {
-//				Thread.sleep(30);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
+			s.draw();
+			s.drawNext(0,0);
+			try {
+				Thread.sleep(0);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			int rowsCleared = s.getRowsCleared();
 			if ((rowsCleared - rowsCounter) >= 100 && p.shouldLogEveryHundredRows) {
 				p.logEveryHundredRows(rowsCleared);
